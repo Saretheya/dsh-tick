@@ -1,10 +1,21 @@
+<div align="center">
+
 # dsh-tick
 
-> 在 DSH 会话里安排定时任务：到点后自动向**当前会话**注入一段提示词，唤醒模型去执行。
+**在 DSH 会话里安排定时任务：到点后自动向当前会话注入一段提示词，唤醒模型去执行。**
 
-[English](README.en.md) · [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+[English](README.en.md) · **中文**
 
-![折叠状态](assets/01-dock-collapsed.png)
+[![platform-web](https://img.shields.io/badge/platform-web-blue)](#安装)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![dsh](https://img.shields.io/badge/DSH-0.1.5--rc.2-blue)](https://github.com/deepseek-ai/deepseek-harness)
+[![npm downloads](https://img.shields.io/npm/dt/dsh-tick.svg?label=downloads)](https://www.npmjs.com/package/dsh-tick)
+
+<img src="assets/01-dock-collapsed.png" alt="输入框上方的定时任务面板（折叠状态）" width="660">
+
+<sub>输入框上方的折叠摘要行 —— 点它展开即可管理任务。</sub>
+
+</div>
 
 ---
 

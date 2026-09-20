@@ -1,11 +1,21 @@
+<div align="center">
+
 # dsh-tick
 
-> Schedule work inside a DSH session: when the time comes, a prompt is injected
-> into **the current session** to wake the model up and run it.
+**Schedule work inside a DSH session: when the time comes, a prompt is injected into the current session to wake the model up and run it.**
 
-[中文](README.md) · [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+**English** · [中文](README.md)
 
-![Collapsed](assets/01-dock-collapsed.png)
+[![platform-web](https://img.shields.io/badge/platform-web-blue)](#install)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![dsh](https://img.shields.io/badge/DSH-0.1.5--rc.2-blue)](https://github.com/deepseek-ai/deepseek-harness)
+[![npm downloads](https://img.shields.io/npm/dt/dsh-tick.svg?label=downloads)](https://www.npmjs.com/package/dsh-tick)
+
+<img src="assets/01-dock-collapsed.png" alt="The scheduled-task panel above the composer (collapsed)" width="660">
+
+<sub>The collapsed summary row above the composer — click it to manage tasks.</sub>
+
+</div>
 
 ---
 
