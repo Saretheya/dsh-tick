@@ -1,0 +1,85 @@
+{
+  "name": "dsh-tick",
+  "version": "1.0.0",
+  "description": "Session-local scheduled tasks for DeepSeek Harness: inject a prompt into the current session after a delay, at a fixed time, or on a repeating interval — with a Web management panel, a /schedule command, and model-facing management tools. State lives in the plugin's own folder; nothing is written to the session log.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": {
+      "default": "./package.json"
+    }
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ],
+      "immediately": true
+    },
+    "catalog": {
+      "category": "automation",
+      "summary": {
+        "en": "Schedule work inside a session: run a prompt after a delay, at a fixed time, or on a repeating interval. Manage tasks from a panel above the composer, the /schedule command, or the model's own tools.",
+        "zh": "在会话内安排定时任务：延迟、固定时刻或按间隔重复执行一段提示词。可用输入框上方面板、/schedule 命令、以及模型自己的工具来管理。"
+      },
+      "capabilities": [
+        "scheduled-tasks",
+        "delay",
+        "fixed-time",
+        "periodic",
+        "model-tools",
+        "slash-command"
+      ]
+    }
+  },
+  "files": [
+    "lib/",
+    "assets/",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis-plugin",
+    "scheduler",
+    "timer",
+    "scheduled-tasks",
+    "reminder",
+    "automation"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1 <5",
+    "@deepseek-ai/dsh-llm": "^0.1.5-rc.2",
+    "@deepseek-ai/dsh-tools": "^0.1.5-rc.2"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "license": "MIT",
+  "author": "Saretheya",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saretheya/dsh-tick.git"
+  },
+  "homepage": "https://github.com/Saretheya/dsh-tick#readme",
+  "bugs": {
+    "url": "https://github.com/Saretheya/dsh-tick/issues"
+  }
+}
