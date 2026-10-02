@@ -8,7 +8,7 @@
 
 [![platform-web](https://img.shields.io/badge/platform-web-blue)](#安装)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![dsh](https://img.shields.io/badge/DSH-0.1.5--rc.2-blue)](https://github.com/deepseek-ai/deepseek-harness)
+[![dsh](https://img.shields.io/badge/DSH-0.1.5%20%7C%200.2.0-blue)](https://github.com/deepseek-ai/deepseek-harness)
 [![npm downloads](https://img.shields.io/npm/dt/dsh-tick.svg?label=downloads)](https://www.npmjs.com/package/dsh-tick)
 
 <img src="assets/01-dock-collapsed.png" alt="输入框上方的定时任务面板（折叠状态）" width="660">
@@ -95,8 +95,8 @@ dsh plugin --profile web add dsh-tick
 
 装好后重启 DSH 即可。
 
-> 需要 DSH `0.1.5-rc.2` 或兼容版本。插件**不修改** `settings.yaml`，
-> 卸载时随插件目录一起消失，不留残留。
+> 需要 DSH `0.1.5-rc.2` 以上（**0.1.5 与 0.2.0 均已实测支持**，见下方「兼容的 DSH 版本」）。
+> 插件**不修改** `settings.yaml`，卸载时随插件目录一起消失，不留残留。
 
 ---
 
@@ -165,9 +165,27 @@ dsh plugin --profile web add dsh-tick
   DSH 的会话日志有事件类型白名单，插件没有公开途径登记自己的类型。
 - **注入消息标记为插件来源**，不伪装成用户发言。会话记录里始终能区分
   「你说的」与「定时器注入的」。
-- **不占用官方 `dsh-schedule`**：官方那套的定位是「提醒」（要求模型
-  只转述、不执行），本插件的定位是「任务」（要求模型执行）。
-  两者语义不同，同时开启会让你和 AI 面对两套定时系统。
+- **不占用官方 `dsh-schedule`**：官方那套是**宿主级持久提醒**（跨会话、可唤醒冷会话），
+  本插件是**会话内定时任务**。两者定位不同，同时开启会让你和 AI 面对两套定时系统。
+
+---
+
+## 兼容的 DSH 版本
+
+本插件**同一份代码同时支持 DSH 0.1.5 与 0.2.0**，因为这两版的 `dsh-settings` API 完全不同：
+
+| | 0.1.5 | 0.2.0 |
+|---|---|---|
+| 读配置 | `settings.get('locale')` | `settings.describe()`（**`get` 已被移除**）|
+| 配置变更通知 | `settings.watch(cb)` | `settings/document-updated` 事件（**`watch` 已被移除**）|
+
+插件用**能力检测**（`typeof settings.get === 'function'`）自动选路，**不依赖版本号**，
+所以不需要版本判断，也不需要按版本装不同的包。将来官方再改 API，最坏情况是退化为
+"语言改动在下次工具调用时生效"，**不会报错、不会失效**。
+
+> 除上述两项外，本插件用到的 `defineTool` / `ctx.tools.register` /
+> `createUserMessage` / `connection.fetch.register` / `ctx.slots.register` /
+> `ctx.locale.*` 在 0.2.0 中**均未发生变化**。
 
 ---
 

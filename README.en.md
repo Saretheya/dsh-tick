@@ -8,7 +8,7 @@
 
 [![platform-web](https://img.shields.io/badge/platform-web-blue)](#install)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![dsh](https://img.shields.io/badge/DSH-0.1.5--rc.2-blue)](https://github.com/deepseek-ai/deepseek-harness)
+[![dsh](https://img.shields.io/badge/DSH-0.1.5%20%7C%200.2.0-blue)](https://github.com/deepseek-ai/deepseek-harness)
 [![npm downloads](https://img.shields.io/npm/dt/dsh-tick.svg?label=downloads)](https://www.npmjs.com/package/dsh-tick)
 
 <img src="assets/01-dock-collapsed.png" alt="The scheduled-task panel above the composer (collapsed)" width="660">
@@ -101,9 +101,9 @@ dsh plugin --profile web add dsh-tick
 
 Restart DSH afterwards.
 
-> Requires DSH `0.1.5-rc.2` or a compatible version. The plugin **does not touch**
-> `settings.yaml`; uninstalling removes it along with its own folder, leaving
-> nothing behind.
+> Requires DSH `0.1.5-rc.2` or newer — **both 0.1.5 and 0.2.0 are tested**, see
+> "Compatible DSH versions" below. The plugin **does not touch** `settings.yaml`;
+> uninstalling removes it along with its own folder, leaving nothing behind.
 
 ---
 
@@ -177,9 +177,31 @@ Chinese is used when no choice has been made.
 - **Injected messages are marked as plugin-sourced** and never impersonate the
   user. Session history always distinguishes "what you said" from "what the timer injected".
 - **It does not take over the official `dsh-schedule`.** That plugin is a
-  *reminder* system (it tells the model to relay content, not to act on it);
-  this one is a *task* system (it tells the model to act). Running both would
-  leave you and the model facing two scheduling systems with opposite semantics.
+  *host-wide durable reminder* system (cross-session, and it can wake cold sessions);
+  this one is a *session-local task* system. They occupy different niches — running
+  both leaves you and the model facing two scheduling systems.
+
+---
+
+## Compatible DSH versions
+
+One and the same codebase supports **both DSH 0.1.5 and 0.2.0**, because those two
+versions ship completely different `dsh-settings` APIs:
+
+| | 0.1.5 | 0.2.0 |
+|---|---|---|
+| Reading config | `settings.get('locale')` | `settings.describe()` (**`get` removed**) |
+| Config change notification | `settings.watch(cb)` | the `settings/document-updated` event (**`watch` removed**) |
+
+The plugin picks the right path via **capability detection**
+(`typeof settings.get === 'function'`) rather than a version check, so there is
+nothing to configure and no per-version package to install. If the official API
+changes again, the worst case is that a language change takes effect on the next
+tool call — **it will not error out or stop working**.
+
+> Apart from those two, everything this plugin uses — `defineTool`,
+> `ctx.tools.register`, `createUserMessage`, `connection.fetch.register`,
+> `ctx.slots.register`, `ctx.locale.*` — is **unchanged** in 0.2.0.
 
 ---
 
