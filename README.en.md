@@ -183,28 +183,6 @@ Chinese is used when no choice has been made.
 
 ---
 
-## Compatible DSH versions
-
-One and the same codebase supports **both DSH 0.1.5 and 0.2.0**, because those two
-versions ship completely different `dsh-settings` APIs:
-
-| | 0.1.5 | 0.2.0 |
-|---|---|---|
-| Reading config | `settings.get('locale')` | `settings.describe()` (**`get` removed**) |
-| Config change notification | `settings.watch(cb)` | the `settings/document-updated` event (**`watch` removed**) |
-
-The plugin picks the right path via **capability detection**
-(`typeof settings.get === 'function'`) rather than a version check, so there is
-nothing to configure and no per-version package to install. If the official API
-changes again, the worst case is that a language change takes effect on the next
-tool call — **it will not error out or stop working**.
-
-> Apart from those two, everything this plugin uses — `defineTool`,
-> `ctx.tools.register`, `createUserMessage`, `connection.fetch.register`,
-> `ctx.slots.register`, `ctx.locale.*` — is **unchanged** in 0.2.0.
-
----
-
 ## Appendix: why there is no in-session icon
 
 **You will not see a scheduled-task icon in the session list. That is not an
@@ -238,6 +216,50 @@ dependency — just set `showSidebarSummary` to `true` in the config above.
   set a shorter interval than that, the extra firings are throttled. Raise this
   value if you need faster.
 - **The `d` (days) unit is not supported.** Use `h` (e.g. `+48h`) or **Fixed time**.
+
+---
+
+## Changelog
+
+### v1.0.3 (2026-11-03) — fix injection failure on DSH 0.2.1
+
+**Symptom**: after upgrading to DSH 0.2.1, a task failing at fire time aborts the
+whole turn with:
+
+```
+本轮运行失败  format v4 message requires a producer-owned source kind
+```
+
+**Cause**: 0.2.1 enables session format v4, which **retires the `kind: 'plugin'`
+message source** in favour of a "producer-owned" kind. The plugin was injecting
+`{ kind: 'plugin', plugin: 'tick' }` — exactly the shape now rejected — so
+**the injection step failed**. The timer itself was fine: the task kept its
+schedule and was marked done; only "deliver the prompt into the session" broke.
+
+**Fix**: inject `{ kind: 'plugin:tick' }`. That shape is not arbitrary — it is
+**the very shape DSH itself produces when migrating old data to v4** (its
+migration maps `plugin:'tick'` to `plugin:tick`), so it matches official
+semantics exactly. Session history still shows at a glance that this came from a
+plugin, and it can **never** be mistaken for something you said.
+
+**Compatibility** (one package, no per-version build):
+
+| DSH version | Status |
+|---|---|
+| **0.1.5-rc.2** | ✅ supported (that release has no runtime check on message source) |
+| **0.2.0** | ✅ supported (already reads config via `describe()`, see below) |
+| **0.2.1-rc.5** | ✅ supported (the target of this fix) |
+
+The right path is chosen by **capability detection**, not a version check:
+
+| | 0.1.x | 0.2.x |
+|---|---|---|
+| Reading UI language | `settings.get('locale')` | `settings.describe()` (`get` removed) |
+| Language change notification | `settings.watch(cb)` | the `settings/document-updated` event (`watch` removed) |
+
+Everything else this plugin uses (`defineTool` / `ctx.tools.register` /
+`createUserMessage` / `connection.fetch.register` / `ctx.slots.register` /
+`ctx.locale.*`) is unchanged in 0.2.x.
 
 ---
 

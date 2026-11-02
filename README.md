@@ -170,25 +170,6 @@ dsh plugin --profile web add dsh-tick
 
 ---
 
-## 兼容的 DSH 版本
-
-本插件**同一份代码同时支持 DSH 0.1.5 与 0.2.0**，因为这两版的 `dsh-settings` API 完全不同：
-
-| | 0.1.5 | 0.2.0 |
-|---|---|---|
-| 读配置 | `settings.get('locale')` | `settings.describe()`（**`get` 已被移除**）|
-| 配置变更通知 | `settings.watch(cb)` | `settings/document-updated` 事件（**`watch` 已被移除**）|
-
-插件用**能力检测**（`typeof settings.get === 'function'`）自动选路，**不依赖版本号**，
-所以不需要版本判断，也不需要按版本装不同的包。将来官方再改 API，最坏情况是退化为
-"语言改动在下次工具调用时生效"，**不会报错、不会失效**。
-
-> 除上述两项外，本插件用到的 `defineTool` / `ctx.tools.register` /
-> `createUserMessage` / `connection.fetch.register` / `ctx.slots.register` /
-> `ctx.locale.*` 在 0.2.0 中**均未发生变化**。
-
----
-
 ## 附：为什么没有「会话行内」的图标
 
 **会话列表里不会出现定时任务的图标。这不是遗漏，而是官方机制本身做不到。**
@@ -215,6 +196,46 @@ DSH 的侧栏只开放 6 个插槽，其中会话列表区 `sidebar.workspaces` 
 - **注入频率默认每分钟 1 次**（`maxInjectionsPerMinute`）：
   设了比这更短的周期，实际触发会被限流。要跑更快就调大这个值。
 - **时长不支持 `d`（天）**：用 `h`（如 `+48h`）或「固定时刻」模式。
+
+---
+
+## 更新日志
+
+### v1.0.3（2026-11-03）— 修复 DSH 0.2.1 下注入失败
+
+**症状**：升级到 DSH 0.2.1 后，任务到点触发时整轮报错：
+
+```
+本轮运行失败  format v4 message requires a producer-owned source kind
+```
+
+**原因**：0.2.1 启用了会话格式 v4，**废弃了消息来源的 `kind: 'plugin'` 写法**，
+改为要求「生产者自有的 kind」。插件原先注入的 `{ kind: 'plugin', plugin: 'tick' }`
+正好是被拒绝的那一种，因此**注入这一步失败**（任务本身能正常计时、正常标记完成，
+只有"把提示词送进会话"这一环挂了）。
+
+**修复**：改用 `{ kind: 'plugin:tick' }`。这个形状不是随手取的，而是
+**DSH 自己把旧数据迁移到 v4 时产生的同一种形状**（迁移函数对 `plugin:'tick'`
+就是返回 `plugin:tick`），所以与官方语义完全一致。会话记录里仍能一眼认出
+「这是插件注入的」，也**绝不会**被误当成你的发言。
+
+**兼容性**（同一份代码，无需按版本装不同包）：
+
+| DSH 版本 | 状态 |
+|---|---|
+| **0.1.5-rc.2** | ✅ 支持（该版对消息来源无运行期校验）|
+| **0.2.0** | ✅ 支持（该版已可用 `describe()` 读配置，见下）|
+| **0.2.1-rc.5** | ✅ 支持（即本次修复的目标版本）|
+
+跨版本能力检测自动选路，**不依赖版本号**：
+
+| | 0.1.x | 0.2.x |
+|---|---|---|
+| 读界面语言 | `settings.get('locale')` | `settings.describe()`（`get` 已被移除）|
+| 语言变更通知 | `settings.watch(cb)` | `settings/document-updated` 事件（`watch` 已被移除）|
+
+其余用到的官方 API（`defineTool` / `ctx.tools.register` / `createUserMessage` /
+`connection.fetch.register` / `ctx.slots.register` / `ctx.locale.*`）在 0.2.x 中均未变化。
 
 ---
 
