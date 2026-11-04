@@ -221,6 +221,31 @@ dependency — just set `showSidebarSummary` to `true` in the config above.
 
 ## Changelog
 
+### v1.1.0 (2026-11-04) — background wake + collapsed countdown
+
+**① New `allowBackgroundWake` option (on by default)**
+
+Previously, when a task came due while its session was **not open on screen**, the
+plugin could not reach an execution target for that session — so the task only fired
+later, all at once, the moment you opened the session.
+
+Now the plugin **wakes that session** when a task comes due and delivers on time. It
+goes through the official `sessionController.resolveAgent()` (contract: *Resolve or
+resume one ordinary Session*), which is exactly what the official `dsh-schedule` does.
+
+If you would rather keep things quiet and only deliver into sessions you already have
+open, set `allowBackgroundWake` to `false` in `data/config.json`. Nothing is lost —
+tasks stay overdue and fire as usual once you open the session.
+
+**② Fixed the countdown not updating while collapsed**
+
+The collapsed summary row above the composer already showed "next task in …", but only
+refreshed every second while **expanded**; when collapsed the number froze until the
+next poll. Now it ticks every second in both states whenever a pending task exists
+(re-render only, no requests).
+
+---
+
 ### v1.0.3 (2026-11-03) — fix injection failure on DSH 0.2.1
 
 **Symptom**: after upgrading to DSH 0.2.1, a task failing at fire time aborts the
